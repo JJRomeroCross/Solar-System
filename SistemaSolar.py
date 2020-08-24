@@ -20,15 +20,16 @@ def CalcularAceleracion(X, Y,  M, x, y, m):
     remos calcular la aceleración al Sol, m es la masa del planeta al que le 
     queremos calcular la aceleración.'''
     
-    sumax = 0.0
-    sumay = 0.0
+    
     if (len(M) != len(X)):
         print('Tenemos un problema')
-    else: 
+    else:
+        sumax = 0.0
+        sumay = 0.0
         for i in range(0, len(M)):
-            if(int(M[i]) != int(m)):
-                sumax += -(M[i]*(x - X[i]))/((((x- X[i])**2) + ((y - Y[i])**2)))**3
-                sumay += -(M[i]*(y - Y[i]))/((((x- X[i])**2) + ((y - Y[i])**2)))**3
+            if(float(M[i]) != float(m)):
+                sumax += -(M[i]*(x - X[i]))/(((((x- X[i])**2) + ((y - Y[i])**2)))**1.5)
+                sumay += -(M[i]*(y - Y[i]))/(((((x- X[i])**2) + ((y - Y[i])**2)))**1.5)
     return sumax, sumay
 
 def CalcularPosicion(h, X, Y, Vx, Vy, ax, ay):
@@ -60,40 +61,44 @@ t = 0.0
 
 #X, Y, Vx, Vy, ax, ay, M = [], [], [], [], [], [], []
 fdatos = open('datos.dat', 'r')
+
 X = np.loadtxt('datos.dat', usecols = (0))
 X = X.tolist()
+
 Y = np.loadtxt('datos.dat', usecols = (1))
 Y = Y.tolist()
+
 Vy = np.loadtxt('datos.dat', usecols = (2))
 Vy = Vy.tolist()
+
 M = np.loadtxt('datos.dat', usecols = (3))
 M = M.tolist()
-Vx = np.zeros_like(M)
-Vx = Vx.tolist()
+
+Vx = np.zeros_like(M).tolist()
+#Vx = Vx.tolist()
+
 ax, ay = np.zeros_like(M).tolist(), np.zeros_like(M).tolist()
 Wx, Wy = np.zeros_like(M).tolist(), np.zeros_like(M).tolist()
-print('X: ', X)
-#print(type(X))
+
 file = list([])
 f = list([])
 
 for i in range(0, len(M)):
     file.append('planeta' + str(i) + '.dat')
-#    print(file)
     ax[i], ay[i] = CalcularAceleracion(X, Y, M, X[i], Y[i], M[i])
     f.append(open(file[i], 'w'))
-    print(f)
     f[i].write(str(X[i]) +' ' + str(Y[i]) + ' ' + str(Vx[i]) + ' ' + str(Vy[i]) + ' ' + str(ax[i]) + ' ' + str(ay[i]) + ' ' + str(0) + '\n')
 
 while(lim > t):
    CalcularPosicion(h, X, Y, Vx, Vy, ax, ay)
    CalcularW(Vx, Vy, ax, ay, h, Wx, Wy)
    for i in range(0, len(M)):
-       CalcularAceleracion(X, Y, M, X[i], Y[i], M[i])
+       ax[i], ay[i] = CalcularAceleracion(X, Y, M, X[i], Y[i], M[i])
    CalcularVelocidad(Wx, Wy, h, ax, ay, Vx, Vy)
    for i in range(0, len(M)):
        f[i].write(str(X[i]) +' ' + str(Y[i]) + ' ' + str(Vx[i]) + ' ' + str(Vy[i]) + ' ' + str(ax[i]) + ' ' + str(ay[i]) + ' ' + str(t) +'\n')
    t += h
 fdatos.close()
-for i in range(0, 10):
+print('Han pasado ' + str(t/0.01720306409) + ' días')
+for i in range(0, len(M)):
     f[i].close()
